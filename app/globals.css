@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@import "highlight.js/styles/github-dark.css";
+@import "@xterm/xterm/css/xterm.css";
+
+@theme {
+  --color-bg: #0a0b0d;
+  --color-bg-elev: #111316;
+  --color-bg-raised: #15181c;
+  --color-panel: #0e1013;
+  --color-border: #1f242b;
+  --color-border-strong: #2a313a;
+  --color-fg: #e6e8eb;
+  --color-fg-muted: #9aa3af;
+  --color-fg-dim: #6b7280;
+  --color-accent: #f2a900;
+  --color-accent-hi: #ffd166;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-info: #60a5fa;
+
+  --font-mono: ui-monospace, "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { border-color: var(--color-border); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 6px;
+  border: 2px solid var(--color-bg);
+}
+
+.cc-divider { background: var(--color-border); }
+
+/* Markdown (right pane) */
+.md-body { line-height: 1.55; }
+.md-body h1, .md-body h2, .md-body h3 {
+  color: var(--color-fg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 1em 0 0.4em;
+}
+.md-body h1 { font-size: 1.25rem; }
+.md-body h2 { font-size: 1.05rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.25rem; }
+.md-body h3 { font-size: 0.95rem; color: var(--color-fg-muted); }
+.md-body p, .md-body li { color: var(--color-fg); }
+.md-body code {
+  font-family: var(--font-mono);
+  background: var(--color-bg-raised);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+.md-body pre {
+  background: var(--color-bg-raised);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+.md-body pre code { background: transparent; padding: 0; border-radius: 0; }
+.md-body ul { list-style: disc; padding-left: 1.2rem; }
+.md-body ol { list-style: decimal; padding-left: 1.2rem; }
+.md-body blockquote {
+  border-left: 3px solid var(--color-border-strong);
+  padding-left: 0.75rem;
+  color: var(--color-fg-muted);
+}
+.md-body a { color: var(--color-info); text-decoration: underline; text-underline-offset: 2px; }
+.md-body hr { border-color: var(--color-border); margin: 1em 0; }
+.md-body table { border-collapse: collapse; }
+.md-body th, .md-body td { border: 1px solid var(--color-border); padding: 0.35rem 0.6rem; }
+.md-body input[type="checkbox"] { accent-color: var(--color-accent); margin-right: 0.35rem; }
+
+.xterm-viewport { background: transparent !important; }

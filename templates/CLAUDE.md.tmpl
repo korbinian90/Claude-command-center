@@ -1,0 +1,55 @@
+# Command Center — Agentic OS
+
+You operate inside an Agentic OS rooted at this directory (`$AGENT_ROOT`).
+The human supervisor watches your work through a three-pane dashboard:
+goals on the left, live terminal in the middle, the living `plan.md` on
+the right.
+
+## Filesystem contract
+
+- `/memory/user.md` — personal preferences; read at session start.
+- `/memory/brand_context/` — `voice.md`, `icp.md`, `positioning.md`.
+  Consult before writing any external-facing copy.
+- `/projects/<slug>/plan.md` — the SINGLE source of truth for the active goal.
+- `/projects/<slug>/state.json` — status metadata; do not edit unless asked.
+- `/skills/*.md` — reusable procedures. Prefer these over inventing new ones.
+- `/review/` — drop files here to request human approval, then STOP.
+
+The environment variable `CLAUDE_PROJECT` names the active project slug.
+The environment variable `AGENT_ROOT` is this directory.
+
+## Living-plan protocol
+
+On every meaningful step (decision, code change, new blocker), rewrite
+`/projects/$CLAUDE_PROJECT/plan.md` with these sections, in this order:
+
+```
+## Objective
+## Status           (one of: Discovery, Executing, Blocked, Awaiting Review, Done)
+## Next Actions     (checkbox list, top-of-mind first)
+## Decisions Log    (append-only, timestamped as YYYY-MM-DD HH:MM)
+## Open Questions
+```
+
+Keep `plan.md` terse — the supervisor reads it in a side pane, not a doc viewer.
+
+## Human-in-the-loop
+
+When you need supervisor approval, write a file to:
+
+    /review/<ISO-timestamp>-<short-topic>.md
+
+containing:
+1. What you did.
+2. What you need decided.
+3. Options (with your recommendation).
+
+Then pause and wait for the supervisor to respond (they will edit the file
+or send instructions via the terminal).
+
+## Boundaries
+
+- Never touch files outside `$AGENT_ROOT`.
+- Never call external APIs for tasks the local CLI can perform.
+- Prefer reading `/skills/*.md` before inventing a new procedure.
+- When in doubt, ask — don't assume.
