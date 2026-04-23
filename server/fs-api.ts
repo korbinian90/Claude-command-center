@@ -15,7 +15,7 @@ import {
   userMdPath,
   type Lane,
 } from "../lib/paths";
-import { slugify } from "../lib/slug";
+import { isValidSlug, slugify } from "../lib/slug";
 
 const TEMPLATES = path.join(process.cwd(), "templates");
 
@@ -85,6 +85,7 @@ export async function listGoals(): Promise<GoalState[]> {
 }
 
 export async function readGoal(slug: string): Promise<GoalState | null> {
+  if (!isValidSlug(slug)) return null;
   try {
     const raw = await fs.readFile(statePath(slug), "utf8");
     const parsed = JSON.parse(raw) as Partial<GoalState>;
@@ -128,6 +129,7 @@ export async function createGoal(title: string, objective: string): Promise<Goal
 }
 
 export async function updateGoalLane(slug: string, lane: Lane): Promise<GoalState | null> {
+  if (!isValidSlug(slug)) return null;
   const existing = await readGoal(slug);
   if (!existing) return null;
   const next: GoalState = { ...existing, lane, updatedAt: new Date().toISOString() };
@@ -136,6 +138,7 @@ export async function updateGoalLane(slug: string, lane: Lane): Promise<GoalStat
 }
 
 export async function deleteGoal(slug: string): Promise<boolean> {
+  if (!isValidSlug(slug)) return false;
   const dir = projectDir(slug);
   try {
     await fs.rm(dir, { recursive: true, force: true });
@@ -146,6 +149,7 @@ export async function deleteGoal(slug: string): Promise<boolean> {
 }
 
 export async function readPlan(slug: string): Promise<string | null> {
+  if (!isValidSlug(slug)) return null;
   try {
     return await fs.readFile(planPath(slug), "utf8");
   } catch {
