@@ -1,3 +1,4 @@
+import type { Stats } from "node:fs";
 import path from "node:path";
 import chokidar, { type FSWatcher } from "chokidar";
 import { agentRoot, projectsDir, reviewDir } from "../lib/paths";
@@ -16,23 +17,26 @@ export function startWatchers(router: WsRouter): FSWatcher {
     awaitWriteFinish: { stabilityThreshold: 150, pollInterval: 50 },
     persistent: true,
     depth: 2,
-    ignored: (p) => {
+    ignored: (p: string, stats?: Stats) => {
       // Keep the two roots themselves so chokidar can walk them.
       if (p === projRoot || p === revRoot) return false;
-      // Projects subtree: allow only <projRoot>/<slug> and <projRoot>/<slug>/{plan.md,state.json}
-      if (p === projRoot || p.startsWith(projRoot + path.sep)) {
-        const rel = path.relative(projRoot, p);
-        const parts = rel.split(path.sep);
-        if (parts.length === 1) return false; // <slug> dir
+      // Projects subtree: allow <projRoot>/<slug> (dir) and its plan.md / state.json.
+      if (p.startsWith(projRoot + path.sep)) {
+        const parts = path.relative(projRoot, p).split(path.sep);
+        if (parts.length === 1) return false;
         if (parts.length === 2 && (parts[1] === "plan.md" || parts[1] === "state.json")) {
           return false;
         }
         return true;
       }
-      // Review subtree: allow only <revRoot>/<file>
-      if (p === revRoot || p.startsWith(revRoot + path.sep)) {
+      // Review subtree: allow only files directly under revRoot. Reject any
+      // deeper path and any top-level subdirectory so chokidar does not
+      // descend into it (important when stats is provided on enumeration).
+      if (p.startsWith(revRoot + path.sep)) {
         const rel = path.relative(revRoot, p);
-        return rel.includes(path.sep);
+        if (rel.includes(path.sep)) return true;
+        if (stats?.isDirectory()) return true;
+        return false;
       }
       return true;
     },
