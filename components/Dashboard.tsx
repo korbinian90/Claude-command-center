@@ -13,8 +13,6 @@ import TopBar from "./TopBar";
 
 export default function Dashboard() {
   const setGoals = useAppStore((s) => s.setGoals);
-  const upsertGoal = useAppStore((s) => s.upsertGoal);
-  const removeGoal = useAppStore((s) => s.removeGoal);
   const setActiveGoal = useAppStore((s) => s.setActiveGoal);
   const setReviewItems = useAppStore((s) => s.setReviewItems);
   const addReviewItem = useAppStore((s) => s.addReviewItem);
@@ -137,10 +135,6 @@ export default function Dashboard() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [addTab, removeTab]);
-
-  // Intentionally unused var guard — keeps linter happy if upsert/remove ever become unused.
-  void upsertGoal;
-  void removeGoal;
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden">

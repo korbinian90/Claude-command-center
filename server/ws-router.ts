@@ -1,12 +1,16 @@
 import type { IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
 import { WebSocketServer, WebSocket } from "ws";
+import { isValidSlug } from "../lib/slug";
 import type { ClientMessage, ServerMessage } from "../lib/ws-types";
 import { ptyManager } from "./pty-manager";
 
 function send(ws: WebSocket, msg: ServerMessage): void {
-  if (ws.readyState === ws.OPEN) {
+  if (ws.readyState !== WebSocket.OPEN) return;
+  try {
     ws.send(JSON.stringify(msg));
+  } catch {
+    /* socket raced to close */
   }
 }
 
@@ -57,6 +61,14 @@ export function createWsRouter(token: string): WsRouter {
       try {
         switch (msg.type) {
           case "spawn": {
+            if (!isValidSlug(msg.slug)) {
+              send(ws, {
+                type: "error",
+                message: "invalid slug",
+                clientId: msg.clientId,
+              });
+              return;
+            }
             try {
               const session = ptyManager.spawn({
                 slug: msg.slug,

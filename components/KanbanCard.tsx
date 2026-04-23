@@ -27,9 +27,19 @@ export default function KanbanCard({ goal, active, onSelect }: Props) {
       style={style}
       {...listeners}
       {...attributes}
+      role="button"
+      tabIndex={0}
+      aria-pressed={active}
+      aria-label={`Goal ${goal.title}`}
       onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
       className={[
-        "group cursor-grab touch-none select-none rounded border bg-[var(--color-bg-elev)] p-2.5 transition-colors active:cursor-grabbing",
+        "group cursor-grab touch-none select-none rounded border bg-[var(--color-bg-elev)] p-2.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] active:cursor-grabbing",
         active
           ? "border-[var(--color-accent)] ring-1 ring-[var(--color-accent)]/40"
           : "border-[var(--color-border)] hover:border-[var(--color-border-strong)]",

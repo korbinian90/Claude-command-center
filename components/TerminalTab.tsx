@@ -20,9 +20,11 @@ export default function TerminalTab({ tabId, slug, active }: Props) {
   const updateTab = useAppStore((s) => s.updateTab);
 
   useEffect(() => {
-    let disposed = false;
     const host = containerRef.current;
     if (!host) return;
+
+    let cancelled = false;
+    const cleanups: Array<() => void> = [];
 
     (async () => {
       const [{ Terminal }, { FitAddon }, { WebLinksAddon }] = await Promise.all([
@@ -30,7 +32,7 @@ export default function TerminalTab({ tabId, slug, active }: Props) {
         import("@xterm/addon-fit"),
         import("@xterm/addon-web-links"),
       ]);
-      if (disposed) return;
+      if (cancelled) return;
 
       const term = new Terminal({
         fontFamily: "ui-monospace, JetBrains Mono, Fira Code, Menlo, Consolas, monospace",
@@ -121,23 +123,29 @@ export default function TerminalTab({ tabId, slug, active }: Props) {
       });
       ro.observe(host);
 
-      return () => {
-        ro.disconnect();
-        unsubscribe();
+      cleanups.push(() => ro.disconnect());
+      cleanups.push(unsubscribe);
+      cleanups.push(() => {
         const id = sessionIdRef.current;
         if (id) client.send({ type: "close", sessionId: id });
-        term.dispose();
-      };
+      });
+      cleanups.push(() => term.dispose());
+
+      // If the effect was torn down while we were awaiting imports, run cleanup now.
+      if (cancelled) {
+        while (cleanups.length) cleanups.pop()!();
+      }
     })();
 
     return () => {
-      disposed = true;
-      const id = sessionIdRef.current;
-      if (id) {
-        const client = wsClient();
-        client.send({ type: "close", sessionId: id });
+      cancelled = true;
+      while (cleanups.length) {
+        try {
+          cleanups.pop()!();
+        } catch {
+          /* ignore */
+        }
       }
-      terminalRef.current?.dispose();
       terminalRef.current = null;
       fitRef.current = null;
       sessionIdRef.current = null;
